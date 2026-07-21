@@ -68,11 +68,11 @@ public class PlayerInputSubscription_FPS : MonoBehaviour
     }
     void SetLook(InputAction.CallbackContext ctx)
     {
-        if (ctx.control.device is Mouse)
-        {
-            LookInput = (Vector2)Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-        }
-        else
+        //if (ctx.control.device is Mouse)
+        //{
+        //    LookInput = (Vector2)Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        //}
+        //else
             LookInput = ctx.ReadValue<Vector2>();
 
         GetDeviceOnInput(ctx);

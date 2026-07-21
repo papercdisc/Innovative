@@ -124,7 +124,7 @@ public partial class @Player_FirstPerson: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""500a22d1-6979-49d6-9645-a72ab7fb2927"",
-                    ""path"": ""<Mouse>/position"",
+                    ""path"": ""<Mouse>/delta"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
