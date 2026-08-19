@@ -17,7 +17,18 @@ public class PlayerInputSubscription_FPS : MonoBehaviour
     }
     public Vector2 MoveInput { get; private set; } = Vector2.zero;
     public Vector2 LookInput { get; private set; } = Vector2.zero;
-    public bool JumpInput { get; private set; } = false;
+
+    // Jump input
+    public bool JumpPressedThisFrame { get; private set; } = false;
+    public bool JumpHeld { get; private set; } = false;
+
+    // ADS = Aim Down Sights
+    public bool ADSPressedThisFrame { get; private set; } = false;
+    public bool ADSHeld { get; private set; } = false;
+
+    // Attack input
+    public bool AttackPressedThisFrame { get; private set; } = false;
+    public bool AttackHeld { get; private set; } = false;
 
     Player_FirstPerson _Input = null;
 
@@ -36,6 +47,12 @@ public class PlayerInputSubscription_FPS : MonoBehaviour
 
         _Input.Actions.Look.performed += SetLook;
         _Input.Actions.Look.canceled += SetLook;
+
+        _Input.Actions.ADS.performed += SetADS;
+        _Input.Actions.ADS.canceled += SetADS;
+
+        _Input.Actions.Attack.performed += SetAttack;  
+        _Input.Actions.Attack.canceled += SetAttack;
     }
 
     private void OnDisable()
@@ -49,8 +66,22 @@ public class PlayerInputSubscription_FPS : MonoBehaviour
         _Input.Actions.Look.performed -= SetLook;
         _Input.Actions.Look.canceled -= SetLook;
 
+        _Input.Actions.ADS.performed -= SetADS;
+        _Input.Actions.ADS.canceled -= SetADS;
+
+        _Input.Actions.Attack.performed -= SetAttack;
+        _Input.Actions.Attack.canceled -= SetAttack;
+
         _Input.Actions.Disable();
-    } 
+    }
+
+    private void LateUpdate()
+    {
+        if(JumpPressedThisFrame == true)
+        {
+            JumpPressedThisFrame = false; // reset jump input after it has been read by the player movement script, so that it doesn't keep jumping every frame
+        }
+    }
 
     void GetDeviceOnInput(InputAction.CallbackContext ctx)
     {
@@ -68,19 +99,35 @@ public class PlayerInputSubscription_FPS : MonoBehaviour
     }
     void SetLook(InputAction.CallbackContext ctx)
     {
-        //if (ctx.control.device is Mouse)
-        //{
-        //    LookInput = (Vector2)Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-        //}
-        //else
-            LookInput = ctx.ReadValue<Vector2>();
+        LookInput = ctx.ReadValue<Vector2>();
 
         GetDeviceOnInput(ctx);
     }
     void SetJump(InputAction.CallbackContext ctx)
     {
-        JumpInput = ctx.ReadValueAsButton();
+        JumpHeld = ctx.ReadValueAsButton();
 
+        if (ctx.performed)
+        JumpPressedThisFrame = ctx.ReadValueAsButton();
+
+        GetDeviceOnInput(ctx);
+    }
+    void SetADS(InputAction.CallbackContext ctx)
+    {
+        ADSHeld = ctx.ReadValueAsButton();
+        if (ctx.performed)
+        {
+            ADSPressedThisFrame = ctx.ReadValueAsButton();
+        }
+        GetDeviceOnInput(ctx);
+    }
+    void SetAttack(InputAction.CallbackContext ctx)
+    {
+        AttackHeld = ctx.ReadValueAsButton();
+        if (ctx.performed)
+        {
+            AttackPressedThisFrame = ctx.ReadValueAsButton();
+        }
         GetDeviceOnInput(ctx);
     }
 }

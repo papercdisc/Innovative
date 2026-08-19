@@ -118,6 +118,24 @@ public partial class @Player_FirstPerson: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ADS"",
+                    ""type"": ""Button"",
+                    ""id"": ""bde3baa9-924c-4e9c-95c7-ac42e79e0f37"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Attack"",
+                    ""type"": ""Button"",
+                    ""id"": ""69f69146-19f6-43b0-87b4-a8de6eac9133"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -230,6 +248,50 @@ public partial class @Player_FirstPerson: IInputActionCollection2, IDisposable
                     ""action"": ""Jump"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""438b2480-a55c-4975-8d0d-d88ddeaf729e"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ADS"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""85c8bf89-3561-41d1-8783-3bea144859f1"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ADS"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""31d0b30a-35f4-469e-b5f7-7d351c0c116d"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Attack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3d5aef13-aa8b-4c3c-b6f3-b99dafce449c"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Attack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -269,6 +331,8 @@ public partial class @Player_FirstPerson: IInputActionCollection2, IDisposable
         m_Actions_Look = m_Actions.FindAction("Look", throwIfNotFound: true);
         m_Actions_Move = m_Actions.FindAction("Move", throwIfNotFound: true);
         m_Actions_Jump = m_Actions.FindAction("Jump", throwIfNotFound: true);
+        m_Actions_ADS = m_Actions.FindAction("ADS", throwIfNotFound: true);
+        m_Actions_Attack = m_Actions.FindAction("Attack", throwIfNotFound: true);
         // Menus
         m_Menus = asset.FindActionMap("Menus", throwIfNotFound: true);
         m_Menus_Newaction = m_Menus.FindAction("New action", throwIfNotFound: true);
@@ -356,6 +420,8 @@ public partial class @Player_FirstPerson: IInputActionCollection2, IDisposable
     private readonly InputAction m_Actions_Look;
     private readonly InputAction m_Actions_Move;
     private readonly InputAction m_Actions_Jump;
+    private readonly InputAction m_Actions_ADS;
+    private readonly InputAction m_Actions_Attack;
     /// <summary>
     /// Provides access to input actions defined in input action map "Actions".
     /// </summary>
@@ -379,6 +445,14 @@ public partial class @Player_FirstPerson: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Actions/Jump".
         /// </summary>
         public InputAction @Jump => m_Wrapper.m_Actions_Jump;
+        /// <summary>
+        /// Provides access to the underlying input action "Actions/ADS".
+        /// </summary>
+        public InputAction @ADS => m_Wrapper.m_Actions_ADS;
+        /// <summary>
+        /// Provides access to the underlying input action "Actions/Attack".
+        /// </summary>
+        public InputAction @Attack => m_Wrapper.m_Actions_Attack;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -414,6 +488,12 @@ public partial class @Player_FirstPerson: IInputActionCollection2, IDisposable
             @Jump.started += instance.OnJump;
             @Jump.performed += instance.OnJump;
             @Jump.canceled += instance.OnJump;
+            @ADS.started += instance.OnADS;
+            @ADS.performed += instance.OnADS;
+            @ADS.canceled += instance.OnADS;
+            @Attack.started += instance.OnAttack;
+            @Attack.performed += instance.OnAttack;
+            @Attack.canceled += instance.OnAttack;
         }
 
         /// <summary>
@@ -434,6 +514,12 @@ public partial class @Player_FirstPerson: IInputActionCollection2, IDisposable
             @Jump.started -= instance.OnJump;
             @Jump.performed -= instance.OnJump;
             @Jump.canceled -= instance.OnJump;
+            @ADS.started -= instance.OnADS;
+            @ADS.performed -= instance.OnADS;
+            @ADS.canceled -= instance.OnADS;
+            @Attack.started -= instance.OnAttack;
+            @Attack.performed -= instance.OnAttack;
+            @Attack.canceled -= instance.OnAttack;
         }
 
         /// <summary>
@@ -591,6 +677,20 @@ public partial class @Player_FirstPerson: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnJump(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ADS" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnADS(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Attack" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnAttack(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Menus" which allows adding and removing callbacks.

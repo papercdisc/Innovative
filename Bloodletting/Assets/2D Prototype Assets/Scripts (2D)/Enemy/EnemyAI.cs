@@ -24,7 +24,7 @@ public class EnemyAI : MonoBehaviour
 
     // health thresholds
     [SerializeField] private float playerHealthThreshold = 0.7f; // for saboteur behavior, runs away if player health is above this percentage
-    [SerializeField] private float healthThreshold = 0.3f; // for coward behavior, runs away if enemy health is below this percentage
+    //[SerializeField] private float healthThreshold = 0.3f; // for coward behavior, runs away if enemy health is below this percentage
 
     // state variables
     [SerializeField] EnemyState currentEnemyState;
