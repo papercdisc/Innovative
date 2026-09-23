@@ -68,6 +68,12 @@ public class FirstPersonCam : MonoBehaviour
 
         // rotate the camera and orientation
         camHolder.rotation = Quaternion.Euler(xRot, yRot, 0); // rotate camera
+
+        // IMPORTANT !!!!
+        // NOTE: since the camHolder is being rotated directly using transform, referencing this object will likely result in jittery movement.
+        // There may need to be a level of abstraction between camHolder and the virtual camera, like an object that follows the position and rotation of camHolder, but is not directly set by transform.
+        // !!!!
+
         orientation.rotation = Quaternion.Euler(0, yRot, 0); // rotate orientation (body) only on the y axis
         
         if (PlayerMovement3D.Instance != null) // check if the player movement script is present before trying to update the rotation
