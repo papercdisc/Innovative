@@ -6,10 +6,11 @@ using UnityEngine.InputSystem;
 /// ~~~
 /// Current Features:
 /// - Automatically detects current input device and switches sensitivity accordingly.
+/// - L+R camera lean
 /// ~~~
 /// Features to add:
 /// - toggle ability to look depending on state of the game (e.g. when in a menu, disable looking)
-/// - Juice: camera lean when moving, increased FOV at high speeds, etc.
+/// - Juice: increased FOV at high speeds, etc.
 /// </summary>
 
 public class FirstPersonCam : MonoBehaviour
@@ -67,29 +68,23 @@ public class FirstPersonCam : MonoBehaviour
         xRot = Mathf.Clamp(xRot, -90f, 90f); // clamp the x rotation to prevent the camera from flipping upside down
 
         // rotate the camera and orientation
-        camHolder.rotation = Quaternion.Euler(xRot, yRot, 0); // rotate camera
-
-        // IMPORTANT !!!!
-        // NOTE: since the camHolder is being rotated directly using transform, referencing this object will likely result in jittery movement.
-        // There may need to be a level of abstraction between camHolder and the virtual camera, like an object that follows the position and rotation of camHolder, but is not directly set by transform.
-        // !!!!
 
         orientation.rotation = Quaternion.Euler(0, yRot, 0); // rotate orientation (body) only on the y axis
+
+        this.transform.rotation = Quaternion.Euler(xRot, yRot, 0); // rotate camera
+        this.transform.position = camHolder.position; // keep the camera at the same position as the camera holder
         
         if (PlayerMovement3D.Instance != null) // check if the player movement script is present before trying to update the rotation
         {
             PlayerMovement3D.Instance.SetYaw(yRot); // update the rotation of the player based on camera rotation
         }
-    }
 
-    private void FixedUpdate()
-    {
-        if (playerObject != null)
-        {
-            Quaternion objRot = playerObject.transform.rotation;
-            Quaternion targetRot = orientation.rotation;
+        //if (playerObject != null) // rotate player thing (NOT ACTUAL PLAYER JUST THE VISUAL REPRESENTATION) to match the orientation of the camera
+        //{
+        //    Quaternion objRot = playerObject.transform.rotation;
+        //    Quaternion targetRot = orientation.rotation;
 
-            playerObject.transform.rotation = Quaternion.Lerp(objRot, targetRot , Time.fixedDeltaTime * 10f); // rotate the player object to match the orientation
-        }
+        //    playerObject.transform.rotation = Quaternion.Lerp(objRot, targetRot , Time.deltaTime * 10f); // rotate the player object to match the orientation
+        //}
     }
 }

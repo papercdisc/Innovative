@@ -35,13 +35,17 @@ public class PlayerCombatFP : MonoBehaviour
     [field: Header("Combat Settings")]
     // === COOLDOWN TRACKING ===
     [field: SerializeField] public float atkCD { get; private set; } = 0.5f;
-    [field: SerializeField] public float atkBuffer { get; private set; } = 0.2f;
+    [field: SerializeField, Tooltip("The amount of time an attack input is buffered before it expires.")] public float atkBuffer { get; private set; } = 0.2f;
     
     float atkBufferCounter = 0; // note: different from cooldown, this is a buffer that allows to queue an attack
+                                // basically, every time the input is pressed, the buffer counter acts like an expiring ticket.
+                                // Once the "ticket" expires, the input is no longer valid, and cannot be consumed for an attack.
+                                // this allows for attacks to be queued up if the cooldown is still active, but close to expiring.
+                                // (explaining it here before i forget cause its a little confusing)
     bool canAttack = true; // if the player is allowed to attack (not on cooldown)
 
     // === KNIFE TRACKING ===
-    [field: SerializeField] public int maxKnives {get; private set; } = 3 ;
+    [field: SerializeField] public int maxKnives {get; private set; } = 1 ;
     [field: SerializeField] public int heldKnives {get; private set; } = 0;
     [field: SerializeField] public KnifeState knifeState {get; private set; }
 
@@ -56,8 +60,7 @@ public class PlayerCombatFP : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        TryMelee();
-        TryThrow();
+        TryAttack();
     }
 
     private void KnifeInputHandler()
@@ -76,61 +79,52 @@ public class PlayerCombatFP : MonoBehaviour
             else { knifeState = KnifeState.Melee; }
         }
 
+        bool wantToAttack = getInput.AttackPressedThisFrame || getInput.AttackHeld;
+        // NOTE* still need to fix the fact that attack is count as held when pressed (cause its technically held for more than a frame)
+
         // === QUEUE ATTACK ===
-        if (getInput.AttackPressedThisFrame) // if the player pressed the attack button this frame
+        if (wantToAttack) // if the player wants to attack
         {
-            if (knifeState == KnifeState.Aiming || knifeState == KnifeState.Melee)
+            if (knifeState == KnifeState.Empty)
             {
-                atkBufferCounter = atkBuffer; // reset the attack buffer counter
+                Debug.Log("No knives equipped");
             }
             else
             {
-                Debug.Log("No knives equipped");
+                atkBufferCounter = atkBuffer; // reset the attack buffer counter to allow for an attack
             }
         }
         else if (atkBufferCounter > 0) // attack button wasn't pressed this frame, but the buffer counter is still active
         {
             atkBufferCounter -= Time.deltaTime; // decrement the attack buffer counter
         }
+    }
 
-        if(getInput.AttackHeld && canAttack) // if the player is holding the attack button and can attack, reset the buffer counter to allow for continuous attacks
-        {
-            atkBufferCounter = atkBuffer;
+    private void TryAttack()
+    {
+        if (knifeState == KnifeState.Empty) { return; }
+        if (atkBufferCounter <= 0 || !canAttack) { return; }
+
+        canAttack = false;
+        atkBufferCounter = 0;
+
+        if (knifeState == KnifeState.Aiming)
+        { 
+            // assuming all conditions are met, throw the knife
+            // 1. Instantiate the knife prefab at the spawn point
+            // 2. Set velocity of the knife to the player's orientation (child object) * throw force
+            // 3. Decrease heldKnives and store the thrown knife in a list for potential pickup later
+            
+            Debug.Log("Throwing knife"); 
         }
-    }
+        else if (knifeState == KnifeState.Melee)
+        { 
+            // assuming all conditions are met, perform melee attack
+            // 1. Play melee animation
+            // 2. Check for enemies in range and apply damage
 
-    private void TryThrow()
-    {
-        if (heldKnives == 0) { return; }
-        if (knifeState != KnifeState.Aiming) { return; }
-        if (atkBufferCounter <= 0 || !canAttack) { return; }
-
-        canAttack = false;
-        atkBufferCounter = 0;
-
-        Debug.Log("Throwing knife");
-
-        // assuming all conditions are met, throw the knife
-        // 1. Instantiate the knife prefab at the spawn point
-        // 2. Set velocity of the knife to the player's orientation (child object) * throw force
-        // 3. Decrease heldKnives and store the thrown knife in a list for potential pickup later
-
-        Invoke(nameof(ResetAtk), atkCD); // reset attack after cooldown)
-    }
-    private void TryMelee()
-    {
-        if (heldKnives == 0) { return; }
-        if (knifeState != KnifeState.Melee) { return; }
-        if (atkBufferCounter <= 0 || !canAttack) { return; }
-
-        canAttack = false;
-        atkBufferCounter = 0;
-
-        Debug.Log("Melee attack");
-
-        // assuming all conditions are met, perform melee attack
-        // 1. Play melee animation
-        // 2. Check for enemies in range and apply damage
+            Debug.Log("Melee attack"); 
+        }
 
         Invoke(nameof(ResetAtk), atkCD); // reset attack after cooldown)
     }

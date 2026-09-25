@@ -82,7 +82,6 @@ public class PlayerMovement3D : MonoBehaviour
         // === INPUT HANDLING ===
         bool wantsToJump = getInput.JumpPressedThisFrame || getInput.JumpHeld;
 
-
         if (wantsToJump) // if jump input is pressed
         {
             jumpBufferCounter = jumpBuffer; // reset jump buffer counter
@@ -110,7 +109,7 @@ public class PlayerMovement3D : MonoBehaviour
         Invoke(nameof(ResetJump), jumpCD); // reset jump availability after cooldown
     }
 
-    private void HandleJumpGravity()
+    private void HandleJumpGravity() // AI Assisted using Claude
     {
         if (isGrounded) return;
 

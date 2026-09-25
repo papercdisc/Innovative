@@ -41,7 +41,7 @@ public class CinemachineEffects : MonoBehaviour
         {
             if(cam.Lens.Dutch != 0) // if the camera is not at 0 dutch angle, lerp it back to 0
             {
-                cam.Lens.Dutch = Mathf.Lerp(cam.Lens.Dutch, 0, Time.deltaTime * 5f);
+                cam.Lens.Dutch = Mathf.Lerp(cam.Lens.Dutch, 0, Time.deltaTime * 7f);
 
                 if (Mathf.Abs(cam.Lens.Dutch) < 0.1f) // set to 0 if ducth is low enough
                 {
