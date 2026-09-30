@@ -79,24 +79,31 @@ public class PlayerCombatFP : MonoBehaviour
             else { knifeState = KnifeState.Melee; }
         }
 
-        bool wantToAttack = getInput.AttackPressedThisFrame || getInput.AttackHeld;
+        //bool wantToAttack = getInput.AttackPressedThisFrame || getInput.AttackHeld;
         // NOTE* still need to fix the fact that attack is count as held when pressed (cause its technically held for more than a frame)
 
         // === QUEUE ATTACK ===
-        if (wantToAttack) // if the player wants to attack
+        if (getInput.AttackPressedThisFrame) // if the player wants to attack (only check for this frame)
         {
-            if (knifeState == KnifeState.Empty)
+            if (knifeState == KnifeState.Empty) // ignore if no knives equipped
             {
                 Debug.Log("No knives equipped");
             }
             else
             {
-                atkBufferCounter = atkBuffer; // reset the attack buffer counter to allow for an attack
+                atkBufferCounter = atkBuffer; // reset buffer counter expiration time (attack request is now consumable)
             }
         }
         else if (atkBufferCounter > 0) // attack button wasn't pressed this frame, but the buffer counter is still active
         {
             atkBufferCounter -= Time.deltaTime; // decrement the attack buffer counter
+        }
+        else if(atkBufferCounter <= 0) // attack button wasn't pressed this frame, and attack request is now void
+        {
+            if(getInput.AttackHeld) // if the player is holding attack input at this point
+            {
+                atkBufferCounter = atkBuffer;
+            }
         }
     }
 
