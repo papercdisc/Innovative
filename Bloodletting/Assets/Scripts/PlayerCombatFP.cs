@@ -42,6 +42,7 @@ public class PlayerCombatFP : MonoBehaviour
                                 // Once the "ticket" expires, the input is no longer valid, and cannot be consumed for an attack.
                                 // this allows for attacks to be queued up if the cooldown is still active, but close to expiring.
                                 // (explaining it here before i forget cause its a little confusing)
+    float atkHoldTime = 0f;
     bool canAttack = true; // if the player is allowed to attack (not on cooldown)
 
     // === KNIFE TRACKING ===
@@ -56,14 +57,15 @@ public class PlayerCombatFP : MonoBehaviour
 
     private void Update()
     {
-        KnifeInputHandler();
+        ADSInputHandler();
+        AttackInputHandler();
     }
     private void FixedUpdate()
     {
         TryAttack();
     }
 
-    private void KnifeInputHandler()
+    private void ADSInputHandler()
     {
         bool adsInputThisFrame = getInput.ADSPressedThisFrame;
         bool adsInputHeld = getInput.ADSHeld;
@@ -83,28 +85,11 @@ public class PlayerCombatFP : MonoBehaviour
         // NOTE* still need to fix the fact that attack is count as held when pressed (cause its technically held for more than a frame)
 
         // === QUEUE ATTACK ===
-        if (getInput.AttackPressedThisFrame) // if the player wants to attack (only check for this frame)
-        {
-            if (knifeState == KnifeState.Empty) // ignore if no knives equipped
-            {
-                Debug.Log("No knives equipped");
-            }
-            else
-            {
-                atkBufferCounter = atkBuffer; // reset buffer counter expiration time (attack request is now consumable)
-            }
-        }
-        else if (atkBufferCounter > 0) // attack button wasn't pressed this frame, but the buffer counter is still active
-        {
-            atkBufferCounter -= Time.deltaTime; // decrement the attack buffer counter
-        }
-        else if(atkBufferCounter <= 0) // attack button wasn't pressed this frame, and attack request is now void
-        {
-            if(getInput.AttackHeld) // if the player is holding attack input at this point
-            {
-                atkBufferCounter = atkBuffer;
-            }
-        }
+
+    }
+    private void AttackInputHandler()
+    {
+
     }
 
     private void TryAttack()
