@@ -80,21 +80,29 @@ public class PlayerCombatFP : MonoBehaviour
             if(adsInputHeld) { knifeState = KnifeState.Aiming; }
             else { knifeState = KnifeState.Melee; }
         }
-
-        //bool wantToAttack = getInput.AttackPressedThisFrame || getInput.AttackHeld;
-        // NOTE* still need to fix the fact that attack is count as held when pressed (cause its technically held for more than a frame)
-
-        // === QUEUE ATTACK ===
-
     }
     private void AttackInputHandler()
     {
+        // separate atk input buffer ticket & hold time tracking
+        if(getInput.AttackPressedThisFrame) { atkHoldTime = 0f; } // reset on click
+        else if (getInput.AttackHeld) { atkHoldTime += Time.deltaTime; } // increment while held
+        else { atkHoldTime = 0f; } // reset if not held
 
+        bool holdingPastTicket = getInput.AttackHeld && atkHoldTime > (atkBuffer); // only count as held if button is held past buffer ticket time
+
+        if (getInput.AttackPressedThisFrame || holdingPastTicket)
+        {
+            atkBufferCounter = atkBuffer; // reset buffer ticket
+        }
+        else if (atkBufferCounter > 0)
+        {
+            atkBufferCounter -= Time.deltaTime; // decrement buffer ticket
+        }
     }
 
-    private void TryAttack()
+    private void TryAttack() // actually execute attack if conditions are met (called in FixedUpdate to avoid frame rate issues)
     {
-        if (knifeState == KnifeState.Empty) { return; }
+        if (heldKnives <= 0) { return; }
         if (atkBufferCounter <= 0 || !canAttack) { return; }
 
         canAttack = false;

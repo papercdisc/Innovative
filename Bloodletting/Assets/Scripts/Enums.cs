@@ -8,8 +8,7 @@ public class Enums : MonoBehaviour
 public enum KnifeState
 {
     Melee, // while adopting a melee stance
-    Aiming, // while RMB (or equivalent) is held down
-    Empty // when the player has no knives left
+    Aiming // while RMB (or equivalent) is held down
 }
 
 

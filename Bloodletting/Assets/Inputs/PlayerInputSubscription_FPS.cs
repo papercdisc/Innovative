@@ -81,6 +81,14 @@ public class PlayerInputSubscription_FPS : MonoBehaviour
         {
             JumpPressedThisFrame = false; // reset jump input after it has been read by the player movement script, so that it doesn't keep jumping every frame
         }
+        if(ADSPressedThisFrame == true)
+        {
+            ADSPressedThisFrame = false; // reset ADS input after it has been read by the player combat script, so that it doesn't keep aiming every frame
+        }
+        if(AttackPressedThisFrame == true)
+        {
+            AttackPressedThisFrame = false; // reset attack input after it has been read by the player combat script, so that it doesn't keep attacking every frame
+        }
     }
 
     void GetDeviceOnInput(InputAction.CallbackContext ctx)
