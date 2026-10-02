@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 /// <summary>
 /// Knife throwing mechanic:
@@ -48,7 +49,10 @@ public class PlayerCombatFP : MonoBehaviour
     // === KNIFE TRACKING ===
     [field: SerializeField] public int maxKnives {get; private set; } = 1 ;
     [field: SerializeField] public int heldKnives {get; private set; } = 0;
-    [field: SerializeField] public KnifeState knifeState {get; private set; }
+    [field: SerializeField] public HeldKnifeState knifeState {get; private set; }
+
+    // UNITY EVENTS
+    public UnityEvent<int> OnKnifeCountChanged;
 
     private void Start()
     {
@@ -73,12 +77,12 @@ public class PlayerCombatFP : MonoBehaviour
         // === PARSE ADS INPUT (depending on input preference) ===
         if (toggleADSMode) // handle inputs for toggle
         {
-            if (adsInputThisFrame) { knifeState = (knifeState == KnifeState.Aiming) ? KnifeState.Melee : KnifeState.Aiming; }
+            if (adsInputThisFrame) { knifeState = (knifeState == HeldKnifeState.Aiming) ? HeldKnifeState.Melee : HeldKnifeState.Aiming; }
         }
         else // handle inputs for held ADS
         {
-            if(adsInputHeld) { knifeState = KnifeState.Aiming; }
-            else { knifeState = KnifeState.Melee; }
+            if(adsInputHeld) { knifeState = HeldKnifeState.Aiming; }
+            else { knifeState = HeldKnifeState.Melee; }
         }
     }
     private void AttackInputHandler()
@@ -108,16 +112,23 @@ public class PlayerCombatFP : MonoBehaviour
         canAttack = false;
         atkBufferCounter = 0;
 
-        if (knifeState == KnifeState.Aiming)
+        if (knifeState == HeldKnifeState.Aiming)
         { 
             // assuming all conditions are met, throw the knife
             // 1. Instantiate the knife prefab at the spawn point
             // 2. Set velocity of the knife to the player's orientation (child object) * throw force
             // 3. Decrease heldKnives and store the thrown knife in a list for potential pickup later
-            
+
+            heldKnives--; // decrease held knives
+            OnKnifeCountChanged?.Invoke(heldKnives); // invoke event to update UI
+            // find trajectory
+            Ray shootDir = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f)); // shoot from center of screen
+            KnifeProjectile knife = Instantiate(knifePrefab, knifeSpawnPoint.position, Quaternion.identity).GetComponent<KnifeProjectile>();
+            knife.moveDir = shootDir.direction;
+
             Debug.Log("Throwing knife"); 
         }
-        else if (knifeState == KnifeState.Melee)
+        else if (knifeState == HeldKnifeState.Melee)
         { 
             // assuming all conditions are met, perform melee attack
             // 1. Play melee animation
@@ -132,5 +143,10 @@ public class PlayerCombatFP : MonoBehaviour
     void ResetAtk()
     {
         canAttack = true;
+    }
+    public void AddKnife(int amount)
+    {
+        heldKnives = Mathf.Clamp(heldKnives + amount, 0, maxKnives);
+        OnKnifeCountChanged?.Invoke(heldKnives); // invoke event to update UI
     }
 }
