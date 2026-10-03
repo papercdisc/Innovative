@@ -257,5 +257,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KnifeProjectile
   pickupTrigger: {fileID: 5760834755614064648}
   moveDir: {x: 0, y: 0, z: 0}
-  projSpeed: 20
+  projSpeed: 30
   projDamage: 10
