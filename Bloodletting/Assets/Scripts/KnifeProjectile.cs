@@ -46,6 +46,14 @@ public class KnifeProjectile : MonoBehaviour
         }
     }
 
+    void DropKnife() 
+    { 
+        // remove from parent
+        this.gameObject.transform.SetParent(null);
+        rb.isKinematic = false;
+        state = KnifeProjState.Dropped;
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
         if (state == KnifeProjState.InFlight)
@@ -53,8 +61,38 @@ public class KnifeProjectile : MonoBehaviour
             // add enemy related logic later
             if (collision.gameObject.GetComponent<PlayerHealth>()) return; //ignore player collision
 
+            if(collision.gameObject.GetComponentInParent<EnemyHealth>())
+            {
+                EnemyHealth enemyHealth = collision.gameObject.GetComponentInParent<EnemyHealth>();
+                enemyHealth.TakeDamage(projDamage);
+                state = KnifeProjState.InEnemy;
+                rb.isKinematic = true;
+
+                if(enemyHealth.currentHealth >= 0)
+                {
+                    this.gameObject.transform.SetParent(collision.gameObject.transform);
+                    enemyHealth.OnDeath.AddListener(() =>
+                    {
+                        DropKnife();
+                    });
+                }
+                else DropKnife();
+            }
+            else
+            {
+                state = KnifeProjState.CanPickup;
+                rb.isKinematic = true;
+
+                pickupTrigger.SetActive(true);
+            }
+        }
+        else if (state == KnifeProjState.Dropped)
+        {
+            if (collision.gameObject.GetComponentInParent<EnemyHealth>()) return; //ignore enemy collision
+
             state = KnifeProjState.CanPickup;
             rb.isKinematic = true;
+
             pickupTrigger.SetActive(true);
         }
     }

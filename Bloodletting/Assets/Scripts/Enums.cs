@@ -12,8 +12,9 @@ public enum HeldKnifeState
 }
 public enum  KnifeProjState
 {
-    InFlight, // before hitting an enemy or wall 
+    InFlight, // initial state (constantly in movement)
     InEnemy, // after hitting an enemy
+    Dropped, // while falling to the ground
     CanPickup // after hitting a wall or if enemy is dead and the knife is on the ground
 }
 

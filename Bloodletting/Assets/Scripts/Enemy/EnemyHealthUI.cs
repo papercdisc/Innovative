@@ -28,5 +28,14 @@ public class EnemyHealthUI : MonoBehaviour
     {
         healthBar.value = newValue;
         healthFillImage.color = Color.Lerp(healthMinColor, healthMaxColor, newValue / enemyHealth.maxHealth);
+
+        if(newValue <= 0)
+        {
+            healthBar.gameObject.SetActive(false);
+        }
+        else
+        {
+            healthBar.gameObject.SetActive(true);
+        }
     }
 }
