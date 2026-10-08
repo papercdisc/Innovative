@@ -46,7 +46,7 @@ public class KnifeProjectile : MonoBehaviour
         }
     }
 
-    void DropKnife() 
+    public void DropKnife() 
     { 
         // remove from parent
         this.gameObject.transform.SetParent(null);
@@ -77,14 +77,24 @@ public class KnifeProjectile : MonoBehaviour
                     });
                 }
                 else DropKnife();
+
+                return;
             }
             else
             {
+                if(this.gameObject.transform.position.y > PlayerMovement3D.Instance.transform.position.y + 2)
+                {
+                    DropKnife();
+
+                    return;
+                }
+
                 state = KnifeProjState.CanPickup;
                 rb.isKinematic = true;
 
                 pickupTrigger.SetActive(true);
             }
+
         }
         else if (state == KnifeProjState.Dropped)
         {

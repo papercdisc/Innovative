@@ -5,6 +5,7 @@ public class EnemyHealth : Health
 {
     public UnityEvent OnTakeDamage;
     public UnityEvent OnDeath;
+    public float destoryDelay = 3f;
 
     [Header("Health Stats")]
     [field: SerializeField] public float maxHealth { get; private set; } = 100f;
@@ -19,7 +20,7 @@ public class EnemyHealth : Health
     // Update is called once per frame
     void Update()
     {
-
+       
     }
 
     public override void TakeDamage(float dmg)
@@ -35,5 +36,6 @@ public class EnemyHealth : Health
     {
         OnDeath?.Invoke();
         //Destroy(gameObject);
+        Destroy(gameObject, destoryDelay);
     }
 }
