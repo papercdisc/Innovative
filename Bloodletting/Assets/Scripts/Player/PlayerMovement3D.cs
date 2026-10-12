@@ -70,9 +70,12 @@ public class PlayerMovement3D : MonoBehaviour
 
     private void MovePlayer()
     {
-        moveDir = orientation.forward * getInput.MoveInput.y + orientation.right * getInput.MoveInput.x; // calculate direction based on fwd+back and left+right input
+        Quaternion yawRot = Quaternion.Euler(0f, FirstPersonCam.Instance.Yaw, 0f); // get the camera yaw to calculate current facing direction
+        Vector3 input = new Vector3(getInput.MoveInput.x, 0f, getInput.MoveInput.y);
 
-        Vector3 newVel = moveDir.normalized * moveSpeed; // calculate new velocity based on direction and speed
+        //moveDir = orientation.forward * getInput.MoveInput.y + orientation.right * getInput.MoveInput.x; // calculate direction based on fwd+back and left+right input
+
+        Vector3 newVel = yawRot * input.normalized * moveSpeed; // calculate new velocity based on direction and speed
 
         rb.linearVelocity = newVel + new Vector3(0, rb.linearVelocity.y, 0); // maintain the current y velocity (gravity)
     }

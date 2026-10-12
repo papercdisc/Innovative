@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
+using System.Collections.Generic;
+using System.Collections;
 
 /// <summary>
 /// Knife throwing mechanic:
@@ -50,6 +52,8 @@ public class PlayerCombatFP : MonoBehaviour
     [field: SerializeField] public int maxKnives {get; private set; } = 1 ;
     [field: SerializeField] public int heldKnives {get; private set; } = 0;
     [field: SerializeField] public HeldKnifeState knifeState {get; private set; }
+    [field: SerializeField] public List<KnifeProjectile> SpawnedKnives { get; private set; } = new List<KnifeProjectile>();
+
 
     // UNITY EVENTS
     public UnityEvent<int> OnKnifeCountChanged;
@@ -125,6 +129,7 @@ public class PlayerCombatFP : MonoBehaviour
             Ray shootDir = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f)); // shoot from center of screen
             KnifeProjectile knife = Instantiate(knifePrefab, knifeSpawnPoint.position, Quaternion.identity).GetComponent<KnifeProjectile>();
             knife.moveDir = shootDir.direction;
+            SpawnedKnives.Add(knife);
 
             Debug.Log("Throwing knife"); 
         }

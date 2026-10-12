@@ -40,8 +40,9 @@ public class KnifeProjectile : MonoBehaviour
         {
             if (other.gameObject.GetComponent<PlayerCombatFP>())
             {
-                other.gameObject.GetComponent<PlayerCombatFP>().AddKnife(1);
-                Destroy(gameObject);
+
+                //other.gameObject.GetComponent<PlayerCombatFP>().AddKnife(1);
+                //Destroy(gameObject);
             }
         }
     }

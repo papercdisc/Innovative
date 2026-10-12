@@ -30,6 +30,8 @@ public class PlayerInputSubscription_FPS : MonoBehaviour
     public bool AttackPressedThisFrame { get; private set; } = false;
     public bool AttackHeld { get; private set; } = false;
 
+    public bool RetrievePressedThisFrame { get; private set; } = false;
+
     Player_FirstPerson _Input = null;
 
     public InputDevice currentDevice { get; private set; } = null;
@@ -53,6 +55,9 @@ public class PlayerInputSubscription_FPS : MonoBehaviour
 
         _Input.Actions.Attack.performed += SetAttack;  
         _Input.Actions.Attack.canceled += SetAttack;
+
+        _Input.Actions.RetrieveKnife.performed += SetRetrieved;
+        _Input.Actions.RetrieveKnife.canceled += SetRetrieved;
     }
 
     private void OnDisable()
@@ -72,6 +77,9 @@ public class PlayerInputSubscription_FPS : MonoBehaviour
         _Input.Actions.Attack.performed -= SetAttack;
         _Input.Actions.Attack.canceled -= SetAttack;
 
+        _Input.Actions.RetrieveKnife.performed -= SetRetrieved;
+        _Input.Actions.RetrieveKnife.canceled -= SetRetrieved;
+
         _Input.Actions.Disable();
     }
 
@@ -89,10 +97,16 @@ public class PlayerInputSubscription_FPS : MonoBehaviour
         {
             AttackPressedThisFrame = false; // reset attack input after it has been read by the player combat script, so that it doesn't keep attacking every frame
         }
+        if(RetrievePressedThisFrame == true)
+        {
+            RetrievePressedThisFrame = false; // reset retrieve input after it has been read by the player combat script, so that it doesn't keep retrieving every frame
+        }
     }
 
     void GetDeviceOnInput(InputAction.CallbackContext ctx)
     {
+        if (ctx.control.device == Keyboard.current) return; // because mouse & keyboard are essentially the same input scheme, & switching to keyboard keeps fucking it up
+
         if (ctx.control.device != currentDevice)
         {
             currentDevice = ctx.control.device;
@@ -136,6 +150,11 @@ public class PlayerInputSubscription_FPS : MonoBehaviour
         {
             AttackPressedThisFrame = ctx.ReadValueAsButton();
         }
+        GetDeviceOnInput(ctx);
+    }
+    void SetRetrieved(InputAction.CallbackContext ctx)
+    {
+        RetrievePressedThisFrame = ctx.ReadValueAsButton();
         GetDeviceOnInput(ctx);
     }
 }

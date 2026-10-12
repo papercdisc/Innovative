@@ -44,6 +44,8 @@ public class FirstPersonCam : MonoBehaviour
     float xRot;
     float yRot;
 
+    public float Yaw => yRot;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -57,34 +59,33 @@ public class FirstPersonCam : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float sensX = (getInput.currentDevice is Mouse) ? sensX_m : sensX_gp; // check for which sensitivity to use based on the current input device
-        float lookX = getInput.LookInput.x * Time.deltaTime * sensX;
+        bool isMouse = getInput.currentDevice is Mouse;
 
-        float sensY = (getInput.currentDevice is Mouse) ? sensY_m : sensY_gp;
-        float lookY = getInput.LookInput.y * Time.deltaTime * sensY;
+        float dt = isMouse ? 0.5f : Time.deltaTime; // mouse input is framerate independent, so we don't multiply it by deltaTime, but gamepad input is framerate dependent, so we do multiply it by deltaTime
+
+        float sensX = (isMouse) ? sensX_m : sensX_gp; // check for which sensitivity to use based on the current input device
+        float lookX = getInput.LookInput.x * dt * sensX;
+
+        float sensY = (isMouse) ? sensY_m : sensY_gp;
+        float lookY = getInput.LookInput.y * dt * sensY;
 
         yRot += lookX;
         xRot -= lookY;
         xRot = Mathf.Clamp(xRot, -90f, 90f); // clamp the x rotation to prevent the camera from flipping upside down
+    }
 
+    private void LateUpdate() // so it moves after rigidbody movement occurs + cinemachine operates in late update
+    {
         // rotate the camera and orientation
 
         orientation.rotation = Quaternion.Euler(0, yRot, 0); // rotate orientation (body) only on the y axis
 
         this.transform.rotation = Quaternion.Euler(xRot, yRot, 0); // rotate camera
         this.transform.position = camHolder.position; // keep the camera at the same position as the camera holder
-        
+
         if (PlayerMovement3D.Instance != null) // check if the player movement script is present before trying to update the rotation
         {
             PlayerMovement3D.Instance.SetYaw(yRot); // update the rotation of the player based on camera rotation
         }
-
-        //if (playerObject != null) // rotate player thing (NOT ACTUAL PLAYER JUST THE VISUAL REPRESENTATION) to match the orientation of the camera
-        //{
-        //    Quaternion objRot = playerObject.transform.rotation;
-        //    Quaternion targetRot = orientation.rotation;
-
-        //    playerObject.transform.rotation = Quaternion.Lerp(objRot, targetRot , Time.deltaTime * 10f); // rotate the player object to match the orientation
-        //}
     }
 }
