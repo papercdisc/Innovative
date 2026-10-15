@@ -20,7 +20,7 @@ public class DebugTools : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.R))
         {
-            RespawnEnemies();
+            //RespawnEnemies();
         }
     }
 
@@ -35,7 +35,7 @@ public class DebugTools : MonoBehaviour
                     KnifeProjectile[] knives = enemy.gameObject.GetComponentsInChildren<KnifeProjectile>();
                     foreach(KnifeProjectile knife in knives)
                     {
-                        knife.DropKnife();
+                        //knife.DropKnife();
                     }
                 }
                 Destroy(enemy.gameObject);

@@ -15,7 +15,8 @@ public enum  KnifeProjState
     InFlight, // initial state (constantly in movement)
     InEnemy, // after hitting an enemy
     Dropped, // while falling to the ground
-    CanPickup // after hitting a wall or if enemy is dead and the knife is on the ground
+    CanPickup, // after hitting a wall or if enemy is dead and the knife is on the ground
+    Retrieving // returning to player
 }
 
 #region Old (2D) Enums

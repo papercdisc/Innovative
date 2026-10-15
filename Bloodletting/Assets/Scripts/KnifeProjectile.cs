@@ -6,23 +6,36 @@ public class KnifeProjectile : MonoBehaviour
     public Vector3 moveDir;
     public float projSpeed = 10f;
     public float projDamage = 10f;
+    public float lifetime = 10;
     Rigidbody rb;
     Vector3 velocity;
  
     KnifeProjState state = KnifeProjState.InFlight;
+    public KnifeProjState State => state;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         transform.rotation = Quaternion.LookRotation(moveDir);
-        pickupTrigger.SetActive(false);
+
+        //if(pickupTrigger != null)
+        //    pickupTrigger.SetActive(false);
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if(state == KnifeProjState.CanPickup)
+        {
+            lifetime -= Time.deltaTime;
+
+            if(lifetime <= 0)
+            {
+                ReturnToPlayer();
+            }
+        }
+
     }
     private void FixedUpdate()
     {
@@ -34,25 +47,36 @@ public class KnifeProjectile : MonoBehaviour
     }
 
     // Collision Behaviors
-    public void PickupTrigger(Collider other)
+    //public void PickupTrigger(Collider other)
+    //{
+    //    if (state == KnifeProjState.CanPickup)
+    //    {
+    //        if (other.gameObject.GetComponent<PlayerCombatFP>())
+    //        {
+    //            other.gameObject.GetComponent<PlayerCombatFP>().AddKnife(1);
+    //            Destroy(gameObject);
+    //        }
+    //    }
+    //}
+
+    //public void DropKnife() 
+    //{ 
+    //    // remove from parent
+    //    this.gameObject.transform.SetParent(null);
+    //    rb.isKinematic = false;
+    //    state = KnifeProjState.Dropped;
+    //}
+
+    public void ReturnToPlayer()
     {
-        if (state == KnifeProjState.CanPickup)
+        PlayerCombatFP.Instance.AddKnife(1);
+
+        if (PlayerCombatFP.Instance.SpawnedKnives.Contains(this))
         {
-            if (other.gameObject.GetComponent<PlayerCombatFP>())
-            {
-
-                //other.gameObject.GetComponent<PlayerCombatFP>().AddKnife(1);
-                //Destroy(gameObject);
-            }
+            PlayerCombatFP.Instance.SpawnedKnives.Remove(this);
         }
-    }
 
-    public void DropKnife() 
-    { 
-        // remove from parent
-        this.gameObject.transform.SetParent(null);
-        rb.isKinematic = false;
-        state = KnifeProjState.Dropped;
+        Destroy(this.gameObject);
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -69,42 +93,43 @@ public class KnifeProjectile : MonoBehaviour
                 state = KnifeProjState.InEnemy;
                 rb.isKinematic = true;
 
-                if(enemyHealth.currentHealth >= 0)
+                if (enemyHealth.currentHealth >= 0)
                 {
                     this.gameObject.transform.SetParent(collision.gameObject.transform);
                     enemyHealth.OnDeath.AddListener(() =>
                     {
-                        DropKnife();
+                        //DropKnife();
+                        ReturnToPlayer();
                     });
                 }
-                else DropKnife();
+                else ReturnToPlayer(); //DropKnife();
 
                 return;
             }
             else
             {
-                if(this.gameObject.transform.position.y > PlayerMovement3D.Instance.transform.position.y + 2)
-                {
-                    DropKnife();
+                //if (this.gameObject.transform.position.y > PlayerMovement3D.Instance.transform.position.y + 2)
+                //{
+                //    DropKnife();
 
-                    return;
-                }
+                //    return;
+                //}
 
                 state = KnifeProjState.CanPickup;
                 rb.isKinematic = true;
 
-                pickupTrigger.SetActive(true);
+                //if (pickupTrigger != null) pickupTrigger.SetActive(true);
             }
 
         }
-        else if (state == KnifeProjState.Dropped)
-        {
-            if (collision.gameObject.GetComponentInParent<EnemyHealth>()) return; //ignore enemy collision
+        //else if (state == KnifeProjState.Dropped)
+        //{
+        //    if (collision.gameObject.GetComponentInParent<EnemyHealth>()) return; //ignore enemy collision
 
-            state = KnifeProjState.CanPickup;
-            rb.isKinematic = true;
+        //    state = KnifeProjState.CanPickup;
+        //    rb.isKinematic = true;
 
-            pickupTrigger.SetActive(true);
-        }
+        //    pickupTrigger.SetActive(true);
+        //}
     }
 }

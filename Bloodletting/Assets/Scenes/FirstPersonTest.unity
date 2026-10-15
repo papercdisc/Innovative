@@ -2051,7 +2051,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1497777699}
   - component: {fileID: 1497777696}
-  - component: {fileID: 1497777698}
   - component: {fileID: 1497777697}
   m_Layer: 8
   m_Name: RenderFront
@@ -2096,7 +2095,7 @@ Camera:
   field of view: 60
   orthographic: 0
   orthographic size: 5
-  m_Depth: 0
+  m_Depth: 2
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 32
@@ -2155,14 +2154,6 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
---- !u!81 &1497777698
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1497777695}
-  m_Enabled: 1
 --- !u!4 &1497777699
 Transform:
   m_ObjectHideFlags: 0
@@ -2189,6 +2180,7 @@ GameObject:
   - component: {fileID: 1500112009}
   - component: {fileID: 1500112011}
   - component: {fileID: 1500112010}
+  - component: {fileID: 1500112012}
   m_Layer: 9
   m_Name: Hands2D
   m_TagString: Untagged
@@ -2291,6 +2283,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1500112012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1500112008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4083ea9ce18f49a4f969774c1078c7dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHUDAnim2D
 --- !u!1 &1529773636
 GameObject:
   m_ObjectHideFlags: 0
@@ -3014,6 +3018,12 @@ MonoBehaviour:
   <toggleADSMode>k__BackingField: 0
   <atkCD>k__BackingField: 0.5
   <atkBuffer>k__BackingField: 0.2
+  retrieveRange: 25
+  retrieveFinisherRange: 5
+  retrieveAngle: 8
+  obstructionMask:
+    serializedVersion: 2
+    m_Bits: 0
   <maxKnives>k__BackingField: 3
   <heldKnives>k__BackingField: 3
   <knifeState>k__BackingField: 0
@@ -3033,6 +3043,12 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  OnADS:
+    m_PersistentCalls:
+      m_Calls: []
+  OnKnifeThrown:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1848935723
 GameObject:
   m_ObjectHideFlags: 0
