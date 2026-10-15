@@ -69,6 +69,8 @@ public class KnifeProjectile : MonoBehaviour
 
     public void ReturnToPlayer()
     {
+        //Debug.Log($"ReturnToPlayer: state={state}, lifetime={lifetime}\n{System.Environment.StackTrace}", this);
+
         PlayerCombatFP.Instance.AddKnife(1);
 
         if (PlayerCombatFP.Instance.SpawnedKnives.Contains(this))
@@ -93,7 +95,7 @@ public class KnifeProjectile : MonoBehaviour
                 state = KnifeProjState.InEnemy;
                 rb.isKinematic = true;
 
-                if (enemyHealth.currentHealth >= 0)
+                if (!enemyHealth.isDead)
                 {
                     this.gameObject.transform.SetParent(collision.gameObject.transform);
                     enemyHealth.OnDeath.AddListener(() =>
@@ -108,13 +110,6 @@ public class KnifeProjectile : MonoBehaviour
             }
             else
             {
-                //if (this.gameObject.transform.position.y > PlayerMovement3D.Instance.transform.position.y + 2)
-                //{
-                //    DropKnife();
-
-                //    return;
-                //}
-
                 state = KnifeProjState.CanPickup;
                 rb.isKinematic = true;
 
@@ -122,14 +117,6 @@ public class KnifeProjectile : MonoBehaviour
             }
 
         }
-        //else if (state == KnifeProjState.Dropped)
-        //{
-        //    if (collision.gameObject.GetComponentInParent<EnemyHealth>()) return; //ignore enemy collision
 
-        //    state = KnifeProjState.CanPickup;
-        //    rb.isKinematic = true;
-
-        //    pickupTrigger.SetActive(true);
-        //}
     }
 }

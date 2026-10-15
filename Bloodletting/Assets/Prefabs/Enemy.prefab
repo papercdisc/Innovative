@@ -1152,6 +1152,7 @@ GameObject:
   - component: {fileID: 4859273282401816206}
   - component: {fileID: 6849364786872336997}
   - component: {fileID: 4510500886028107732}
+  - component: {fileID: 675034537234135397}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -1219,6 +1220,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   destoryDelay: 3
+  isDead: 0
   <maxHealth>k__BackingField: 100
   <currentHealth>k__BackingField: 100
 --- !u!114 &811245654984061456
@@ -1287,6 +1289,22 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &675034537234135397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2480753933773981772}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 186da78bdba917f4bb846e6e90617472, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RespawningEnemy
+  enemyPrefab: {fileID: 2480753933773981772}
+  respawnDelay: 2.5
+  spawnPosition: {x: 0, y: 0, z: 0}
+  spawnRotation: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &2501391172805836257
 GameObject:
   m_ObjectHideFlags: 0

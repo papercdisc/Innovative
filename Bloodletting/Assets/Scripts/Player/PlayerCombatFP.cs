@@ -90,6 +90,8 @@ public class PlayerCombatFP : MonoBehaviour
         ADSInputHandler();
         AttackInputHandler();
         RetrieveInputHandler();
+
+        TryRetrieve();
     }
     private void FixedUpdate()
     {
@@ -166,9 +168,12 @@ public class PlayerCombatFP : MonoBehaviour
 
             // find trajectory
             Ray shootDir = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f)); // shoot from center of screen
+
             KnifeProjectile knife = Instantiate(knifePrefab, knifeSpawnPoint.position, Quaternion.identity).GetComponent<KnifeProjectile>();
+            //Debug.Log($"Assigning lifetime: {maxKnifeLifetime}");
             knife.lifetime = maxKnifeLifetime;
             knife.moveDir = shootDir.direction;
+
             SpawnedKnives.Add(knife);
 
             //Debug.Log("Throwing knife"); 
@@ -188,6 +193,8 @@ public class PlayerCombatFP : MonoBehaviour
     {
         if (retrieveBufferCounter <= 0) return;
 
+        retrieveBufferCounter = 0;
+
         // input only goes through if the player is aiming at/near a knife
         KnifeProjectile knifeToRetrieve = FindKnifeInView();
         if (knifeToRetrieve == null) return;
@@ -196,6 +203,7 @@ public class PlayerCombatFP : MonoBehaviour
         Vector3 toKnife = knifeToRetrieve.transform.position - Camera.main.transform.position;
         float dist = toKnife.magnitude;
 
+        // if in an enemy + close to knife, perform special attack (+bonus damage) and retrieve knife
         if(dist < retrieveFinisherRange)
         {
             if(knifeToRetrieve.GetComponentInParent<EnemyHealth>() != null)
@@ -205,8 +213,6 @@ public class PlayerCombatFP : MonoBehaviour
                 enemy.TakeDamage(finisherDamage);
             }
         }
-
-        // if in an enemy + close to knife, perform special attack (+bonus damage) and retrieve knife
 
         // if in an enemy and/or far from knife, pull knife back towards player (like a boomerang) and retrieve knife (deal damage during flight, but dont stick)
         // * damage in this instance is lessened
@@ -242,6 +248,7 @@ public class PlayerCombatFP : MonoBehaviour
             bestDot = dot;
         }
 
+        Debug.Log("Best Match is: " + bestMatch);
         return bestMatch;
     }
 

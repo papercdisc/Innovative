@@ -30,6 +30,9 @@ public class CharacterRagdoll : MonoBehaviour
         {
             animator.enabled = !isActive; // turn off animator when ragdolling
         }
+
+        if (boneRBs == null) return;
+
         foreach(Rigidbody rb in boneRBs)
         {
             rb.isKinematic = !isActive; // turn on physics for ragdoll bones

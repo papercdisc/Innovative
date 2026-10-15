@@ -6,6 +6,7 @@ public class EnemyHealth : Health
     public UnityEvent OnTakeDamage;
     public UnityEvent OnDeath;
     public float destoryDelay = 3f;
+    public bool isDead;
 
     [Header("Health Stats")]
     [field: SerializeField] public float maxHealth { get; private set; } = 100f;
@@ -15,6 +16,7 @@ public class EnemyHealth : Health
     void Start()
     {
         currentHealth = maxHealth;
+        isDead = false;
     }
 
     // Update is called once per frame
@@ -25,15 +27,20 @@ public class EnemyHealth : Health
 
     public override void TakeDamage(float dmg)
     {
+        if (isDead) return;
+
         currentHealth -= dmg;
         OnTakeDamage?.Invoke();
 
-        if (currentHealth < 0) {
+        if (currentHealth <= 0) {
             Die();
         }
     }
     public override void Die()
     {
+        if (isDead) return;
+
+        isDead = true;
         OnDeath?.Invoke();
         //Destroy(gameObject);
         Destroy(gameObject, destoryDelay);
