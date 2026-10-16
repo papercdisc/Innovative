@@ -114,7 +114,8 @@ public class PlayerCombatFP : MonoBehaviour
             if(adsInputHeld) { knifeState = HeldKnifeState.Aiming;}
             else { knifeState = HeldKnifeState.Melee;}
         }
-        OnADS?.Invoke(knifeState == HeldKnifeState.Aiming);
+
+        if(heldKnives > 0) OnADS?.Invoke(knifeState == HeldKnifeState.Aiming);
     }
     private void AttackInputHandler()
     {
