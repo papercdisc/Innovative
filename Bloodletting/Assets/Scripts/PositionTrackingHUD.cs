@@ -10,6 +10,9 @@ public class PositionTrackingHUD : MonoBehaviour
     [SerializeField] float edgePadding = 40f;      // px kept between tracker and screen edge
     [SerializeField] bool rotateWhenOffScreen = true; // point an arrow sprite toward the knife
 
+    [SerializeField] Image arrowSprite;
+    [SerializeField] Image circleSprite;
+
     readonly Dictionary<KnifeProjectile, RectTransform> trackers = new();
     readonly List<KnifeProjectile> toRemove = new();
     Camera cam;
@@ -67,12 +70,20 @@ public class PositionTrackingHUD : MonoBehaviour
         Vector2 half = center - Vector2.one * edgePadding;
         bool onScreen = !behind && Mathf.Abs(dir.x) <= half.x && Mathf.Abs(dir.y) <= half.y;
 
+        Animator anim = tracker.gameObject.GetComponent<Animator>();
+
         if (!onScreen)
         {
+            if (anim.GetBool("OnScreen")) anim.SetBool("OnScreen", false); // if animator isn't already set to OnScreen = false
+
             if (dir.sqrMagnitude < 0.001f) dir = Vector2.down; // dead-center behind you (point down)
             // scale the direction vector until it touches the padded screen rectangle
             float scale = Mathf.Min(half.x / Mathf.Abs(dir.x), half.y / Mathf.Abs(dir.y));
             p = center + dir * scale;
+        }
+        else
+        {
+            if (!anim.GetBool("OnScreen")) anim.SetBool("OnScreen", true); // if animator isn't already set to OnScreen = true
         }
 
         tracker.position = p; // in Overlay mode, position is in screen pixels (works with Canvas Scaler)

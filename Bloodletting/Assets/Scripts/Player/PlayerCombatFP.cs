@@ -1,8 +1,6 @@
-using NUnit.Framework.Internal;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Assertions.Must;
 using UnityEngine.Events;
 
 /// <summary>
@@ -168,12 +166,22 @@ public class PlayerCombatFP : MonoBehaviour
             OnKnifeCountChanged?.Invoke(heldKnives); // invoke event to update UI
 
             // find trajectory
-            Ray shootDir = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f)); // shoot from center of screen
+            Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f)); // shoot from center of screen
+            RaycastHit hit;
+
+            Vector3 targetPoint;
+            if (Physics.Raycast(ray, out hit))
+            {
+                targetPoint = hit.point;
+            }
+            else targetPoint = ray.GetPoint(75);
+
+            Vector3 dir = targetPoint - knifeSpawnPoint.position;
 
             KnifeProjectile knife = Instantiate(knifePrefab, knifeSpawnPoint.position, Quaternion.identity).GetComponent<KnifeProjectile>();
             //Debug.Log($"Assigning lifetime: {maxKnifeLifetime}");
             knife.lifetime = maxKnifeLifetime;
-            knife.moveDir = shootDir.direction;
+            knife.moveDir = dir;
 
             SpawnedKnives.Add(knife);
 
@@ -232,7 +240,7 @@ public class PlayerCombatFP : MonoBehaviour
         foreach (KnifeProjectile knife in SpawnedKnives)
         {
             if (knife == null) continue;
-            if (knife.State != KnifeProjState.CanPickup) continue;
+            if (knife.State != KnifeProjState.CanPickup || knife.State != KnifeProjState.InEnemy) continue;
 
             Vector3 toKnife = knife.transform.position - cam.position; // direction + mag to knife
             float dist = toKnife.magnitude; // distance as float

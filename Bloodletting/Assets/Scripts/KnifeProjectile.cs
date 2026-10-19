@@ -2,14 +2,21 @@ using UnityEngine;
 
 public class KnifeProjectile : MonoBehaviour
 {
-    [SerializeField] GameObject pickupTrigger;
+    Rigidbody rb;
+    Vector3 velocity;
+
+    [Header("Properties")]
     public Vector3 moveDir;
     public float projSpeed = 10f;
     public float projDamage = 10f;
-    public float lifetime = 10;
-    Rigidbody rb;
-    Vector3 velocity;
- 
+    public float lifetime = 10; // determined by PlayerCombatFP
+
+    [Header("Arc")]
+    [SerializeField, Range(0, 1.5f), Tooltip("The higher the value, the more pronounced the arc")] 
+    float gravityScale = 0.5f; 
+    [SerializeField, Tooltip("Adds vertical tilt to launch direction (compensates for arc)")] 
+    float upwardBias = 0.1f;
+
     KnifeProjState state = KnifeProjState.InFlight;
     public KnifeProjState State => state;
 
@@ -17,10 +24,13 @@ public class KnifeProjectile : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        transform.rotation = Quaternion.LookRotation(moveDir);
+        rb.useGravity = false; // custom gravity scaling is used
 
-        //if(pickupTrigger != null)
-        //    pickupTrigger.SetActive(false);
+        Vector3 launchDir = (moveDir + Vector3.up * upwardBias).normalized;
+        velocity = launchDir * projSpeed;
+        rb.linearVelocity = velocity;
+
+        transform.rotation = Quaternion.LookRotation(moveDir);
     }
 
     // Update is called once per frame
@@ -35,37 +45,18 @@ public class KnifeProjectile : MonoBehaviour
                 ReturnToPlayer();
             }
         }
-
     }
     private void FixedUpdate()
     {
         if (state == KnifeProjState.InFlight)
         {
-            velocity = moveDir.normalized * projSpeed;
+            velocity += Physics.gravity * gravityScale * Time.fixedDeltaTime;
             rb.linearVelocity = velocity;
+
+            // keep the blade pointing along its path so it noses down as it falls
+            transform.rotation = Quaternion.LookRotation(velocity);
         }
     }
-
-    // Collision Behaviors
-    //public void PickupTrigger(Collider other)
-    //{
-    //    if (state == KnifeProjState.CanPickup)
-    //    {
-    //        if (other.gameObject.GetComponent<PlayerCombatFP>())
-    //        {
-    //            other.gameObject.GetComponent<PlayerCombatFP>().AddKnife(1);
-    //            Destroy(gameObject);
-    //        }
-    //    }
-    //}
-
-    //public void DropKnife() 
-    //{ 
-    //    // remove from parent
-    //    this.gameObject.transform.SetParent(null);
-    //    rb.isKinematic = false;
-    //    state = KnifeProjState.Dropped;
-    //}
 
     public void ReturnToPlayer()
     {
@@ -100,11 +91,10 @@ public class KnifeProjectile : MonoBehaviour
                     this.gameObject.transform.SetParent(collision.gameObject.transform);
                     enemyHealth.OnDeath.AddListener(() =>
                     {
-                        //DropKnife();
                         ReturnToPlayer();
                     });
                 }
-                else ReturnToPlayer(); //DropKnife();
+                else ReturnToPlayer();
 
                 return;
             }
@@ -112,8 +102,6 @@ public class KnifeProjectile : MonoBehaviour
             {
                 state = KnifeProjState.CanPickup;
                 rb.isKinematic = true;
-
-                //if (pickupTrigger != null) pickupTrigger.SetActive(true);
             }
 
         }
