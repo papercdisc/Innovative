@@ -30,6 +30,7 @@ public class PlayerCombatFP : MonoBehaviour
     [SerializeField] private Transform knifeSpawnPoint;
     [SerializeField] private GameObject knifePrefab;
     [SerializeField] private Transform orientation;
+    [SerializeField] private Transform chestHeight;
     
     // ~~~
 
@@ -55,6 +56,7 @@ public class PlayerCombatFP : MonoBehaviour
 
     [Header("Knife Retrieval")]
     [SerializeField] private float retrieveRange = 25f;
+    [SerializeField] private float closeRetrieveRange = 5f;
     [SerializeField] private float finisherDamage = 60f;
     [SerializeField] private float retrieveFinisherRange = 5f; // range for unique enemy finisher retrieval 
     [SerializeField, Range(1f, 30f), Tooltip("Half-angle of FOV cone for retrieving knives.")] private float retrieveAngle = 8f;
@@ -212,21 +214,28 @@ public class PlayerCombatFP : MonoBehaviour
         Vector3 toKnife = knifeToRetrieve.transform.position - Camera.main.transform.position;
         float dist = toKnife.magnitude;
 
-        // if in an enemy + close to knife, perform special attack (+bonus damage) and retrieve knife
-        if(dist < retrieveFinisherRange)
+        EnemyHealth enemy = knifeToRetrieve.GetComponentInParent<EnemyHealth>();
+        if(enemy)
         {
-            if(knifeToRetrieve.GetComponentInParent<EnemyHealth>() != null)
+            // if in an enemy + close to knife, perform special attack (+bonus damage) and retrieve knife
+            if(dist < retrieveFinisherRange)
             {
-                EnemyHealth enemy = knifeToRetrieve.GetComponentInParent<EnemyHealth>();
-
                 enemy.TakeDamage(finisherDamage);
+                
+                knifeToRetrieve.QuickReturnToPlayer();
+            }
+            else // normal retrieve
+            {
+                enemy.TakeDamage(knifeToRetrieve.projDamage * 0.5f);
+
+                knifeToRetrieve.SetRetrieving(chestHeight);
             }
         }
-
-        // if in an enemy and/or far from knife, pull knife back towards player (like a boomerang) and retrieve knife (deal damage during flight, but dont stick)
-        // * damage in this instance is lessened
-
-        knifeToRetrieve.ReturnToPlayer();
+        else // not in an enemy
+        {
+            if (dist < closeRetrieveRange) knifeToRetrieve.QuickReturnToPlayer();
+            else knifeToRetrieve.SetRetrieving(chestHeight);
+        }
     }
 
     private KnifeProjectile FindKnifeInView()
@@ -240,7 +249,8 @@ public class PlayerCombatFP : MonoBehaviour
         foreach (KnifeProjectile knife in SpawnedKnives)
         {
             if (knife == null) continue;
-            if (knife.State != KnifeProjState.CanPickup || knife.State != KnifeProjState.InEnemy) continue;
+            bool retrieveable = knife.State == KnifeProjState.CanPickup || knife.State == KnifeProjState.InEnemy;
+            if (!retrieveable) continue; // skip this knife if neither are true
 
             Vector3 toKnife = knife.transform.position - cam.position; // direction + mag to knife
             float dist = toKnife.magnitude; // distance as float
@@ -257,7 +267,7 @@ public class PlayerCombatFP : MonoBehaviour
             bestDot = dot;
         }
 
-        Debug.Log("Best Match is: " + bestMatch);
+        //Debug.Log("Best Match is: " + bestMatch);
         return bestMatch;
     }
 

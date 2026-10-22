@@ -37,7 +37,7 @@ public class PositionTrackingHUD : MonoBehaviour
         toRemove.Clear(); // clear previous toRemove entries.
         foreach (var pair in trackers)
         {
-            if (pair.Key == null || !knives.Contains(pair.Key)) // if the knife no longer exists, set to remove tracker-knife pair
+            if (pair.Key == null || !knives.Contains(pair.Key) || pair.Key.State == KnifeProjState.Retrieving) // if the knife no longer exists, set to remove tracker-knife pair
                 toRemove.Add(pair.Key);
         }
         foreach (KnifeProjectile knife in toRemove) // remove pairs

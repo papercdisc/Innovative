@@ -2379,6 +2379,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 0.16}
   m_Center: {x: 0, y: 0, z: 0.08}
+--- !u!1 &1745765171
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1745765172}
+  m_Layer: 6
+  m_Name: ChestHeight
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1745765172
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1745765171}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.25, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1759139051}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1759139050
 GameObject:
   m_ObjectHideFlags: 0
@@ -2416,6 +2447,7 @@ Transform:
   - {fileID: 1571361047}
   - {fileID: 1229599808}
   - {fileID: 312291683}
+  - {fileID: 1745765172}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!136 &1759139052
@@ -2601,12 +2633,14 @@ MonoBehaviour:
   knifeSpawnPoint: {fileID: 520807987}
   knifePrefab: {fileID: 9121175782431227872, guid: fe793a7412ae70b41b5aa396837422c5, type: 3}
   orientation: {fileID: 1229599808}
+  chestHeight: {fileID: 1745765172}
   <toggleADSMode>k__BackingField: 0
   <atkCD>k__BackingField: 0.7
   <atkBuffer>k__BackingField: 0.2
   retrieveRange: 25
+  closeRetrieveRange: 3
   finisherDamage: 60
-  retrieveFinisherRange: 5
+  retrieveFinisherRange: 3
   retrieveAngle: 8
   obstructionMask:
     serializedVersion: 2
