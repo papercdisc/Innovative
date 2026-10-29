@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 // Mostly AI generated code!!
 public class PositionTrackingHUD : MonoBehaviour
@@ -10,8 +11,9 @@ public class PositionTrackingHUD : MonoBehaviour
     [SerializeField] float edgePadding = 40f;      // px kept between tracker and screen edge
     [SerializeField] bool rotateWhenOffScreen = true; // point an arrow sprite toward the knife
 
-    [SerializeField] Image arrowSprite;
-    [SerializeField] Image circleSprite;
+    [SerializeField] Image offScreenIndicator;
+    [SerializeField] Image inViewIndicator;
+    [SerializeField] Image finishAbleIndicator;
 
     readonly Dictionary<KnifeProjectile, RectTransform> trackers = new();
     readonly List<KnifeProjectile> toRemove = new();
@@ -29,7 +31,8 @@ public class PositionTrackingHUD : MonoBehaviour
         // 1. add trackers for new knives
         foreach (KnifeProjectile knife in knives)
         {
-            if (knife != null && !trackers.ContainsKey(knife) && knife.State == KnifeProjState.CanPickup)
+            bool validState = knife.State == KnifeProjState.CanPickup || knife.State == KnifeProjState.InEnemy;
+            if (knife != null && !trackers.ContainsKey(knife) && validState)
                 AddTracker(knife);
         }
 
@@ -48,7 +51,7 @@ public class PositionTrackingHUD : MonoBehaviour
 
         // 3. position everything
         foreach (var pair in trackers) 
-            UpdateTracker(pair.Value, pair.Key.transform.position);
+            UpdateTracker(pair.Value, pair.Key.transform.position, pair.Key, pair.Key.State);
     }
 
     void AddTracker(KnifeProjectile knife)
@@ -56,7 +59,7 @@ public class PositionTrackingHUD : MonoBehaviour
         trackers.Add(knife, Instantiate(trackerPrefab, transform));
     }
 
-    void UpdateTracker(RectTransform tracker, Vector3 worldPos)
+    void UpdateTracker(RectTransform tracker, Vector3 worldPos, KnifeProjectile knife, KnifeProjState state)
     {
         Vector3 sp = cam.WorldToScreenPoint(worldPos);
         Vector2 center = new Vector2(Screen.width, Screen.height) * 0.5f;
@@ -71,6 +74,15 @@ public class PositionTrackingHUD : MonoBehaviour
         bool onScreen = !behind && Mathf.Abs(dir.x) <= half.x && Mathf.Abs(dir.y) <= half.y;
 
         Animator anim = tracker.gameObject.GetComponent<Animator>();
+
+        bool inEnemy = state == KnifeProjState.InEnemy;
+        if(inEnemy)
+        {
+            if (anim.GetBool("InEnemy") != inEnemy) anim.SetBool("InEnemy", inEnemy);
+        }
+
+        bool canFinish = PlayerCombatFP.Instance.IsInFinisherRange(knife);
+        if (anim.GetBool("CanFinish") != canFinish) anim.SetBool("CanFinish", canFinish); // update bool if incongruent
 
         if (!onScreen)
         {

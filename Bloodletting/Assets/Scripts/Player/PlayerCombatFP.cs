@@ -41,6 +41,7 @@ public class PlayerCombatFP : MonoBehaviour
     // ~~~
 
     [field: Header("Combat Settings")]
+    [field: SerializeField] public bool EnableHPKnives { get; private set; }
     [field: SerializeField] public float atkCD { get; private set; } = 0.5f;
     [field: SerializeField, Tooltip("The amount of time an attack input is buffered before it expires.")] public float atkBuffer { get; private set; } = 0.2f;
     
@@ -66,7 +67,7 @@ public class PlayerCombatFP : MonoBehaviour
 
     // ~~~
 
-    [Header("Knife Tracking")]
+    [field: Header("Knife Tracking")]
     [field: SerializeField] public int maxKnives {get; private set; } = 1 ;
     [field: SerializeField] public int heldKnives {get; private set; } = 0;
     [field: SerializeField] public HeldKnifeState knifeState {get; private set; }
@@ -79,6 +80,10 @@ public class PlayerCombatFP : MonoBehaviour
     public UnityEvent<int> OnKnifeCountChanged;
     public UnityEvent<bool> OnADS;
     public UnityEvent OnKnifeThrown;
+    public UnityEvent OnFinisher;
+
+    EnemyHealth pendingFinisherEnemy;
+    KnifeProjectile pendingFinisherKnife;
 
     private void Start()
     {
@@ -218,11 +223,12 @@ public class PlayerCombatFP : MonoBehaviour
         if(enemy)
         {
             // if in an enemy + close to knife, perform special attack (+bonus damage) and retrieve knife
-            if(dist < retrieveFinisherRange)
+            if(IsInFinisherRange(knifeToRetrieve))
             {
-                enemy.TakeDamage(finisherDamage);
-                
+                pendingFinisherEnemy = enemy;
                 knifeToRetrieve.QuickReturnToPlayer();
+                
+                OnFinisher?.Invoke(); // start finisher animation
             }
             else // normal retrieve
             {
@@ -236,6 +242,28 @@ public class PlayerCombatFP : MonoBehaviour
             if (dist < closeRetrieveRange) knifeToRetrieve.QuickReturnToPlayer();
             else knifeToRetrieve.SetRetrieving(chestHeight);
         }
+    }
+
+    public void ResolveFinisher()
+    {
+        EnemyHealth enemy = pendingFinisherEnemy;
+        //KnifeProjectile knife = pendingFinisherKnife;
+        // clear banked knife + enemy
+        pendingFinisherEnemy = null;
+        //pendingFinisherKnife = null;
+
+        if (enemy != null && !enemy.isDead) enemy.TakeDamage(finisherDamage);
+        //if (knife != null) knife.QuickReturnToPlayer();
+    }
+    public bool IsInFinisherRange(KnifeProjectile knife)
+    {
+        if (knife == null || knife.State != KnifeProjState.InEnemy) return false; // only continue if stuck to an enemy
+
+        EnemyHealth enemy = knife.GetComponentInParent<EnemyHealth>();
+        if (enemy == null || enemy.isDead) return false; // only continue if the enemy actually exists
+
+        float dist = Vector3.Distance(Camera.main.transform.position, knife.transform.position);
+        return dist < retrieveFinisherRange;
     }
 
     private KnifeProjectile FindKnifeInView()

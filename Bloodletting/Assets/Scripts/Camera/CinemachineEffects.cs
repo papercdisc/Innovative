@@ -8,18 +8,37 @@ public class CinemachineEffects : MonoBehaviour
 
     [Header("Camera Settings")]
     public float baseFOV;
-    public float fastFOV;
+    public float zoomFOV;
+    float targetFOV;
+    public float zoomSpeed;
+
     public float dutchAngleMax;
+    public bool enableDutch;
 
     void Start()
     {
         cam = GetComponent<CinemachineCamera>();
         getInput = PlayerInputSubscription_FPS.Instance;
+
+        targetFOV = baseFOV;
+        cam.Lens.FieldOfView = baseFOV;
     }
 
     private void Update()
     {
-        DutchAngleControl();
+        if(enableDutch)
+            DutchAngleControl();
+
+        // t is the fraction of steps *covered*, not remaining, so: covered (t) = 1f - remaining (Mathf.Exp())
+        float t = 1f - Mathf.Exp(-zoomSpeed * Time.unscaledDeltaTime); // basically converts the time steps into something framerate independent
+                                                                       // gap between FOVs shrinks by the same proportion for the same amount of real time (dt)
+                                                                       // -zoomSpeed to make it shrink towards 0
+        cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, targetFOV, t);
+    }
+
+    public void FOVZoom(bool activeZoom)
+    {
+        targetFOV = activeZoom ? zoomFOV : baseFOV; 
     }
 
     void DutchAngleControl()

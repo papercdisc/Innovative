@@ -33,17 +33,21 @@ public class KnifeProjectile : MonoBehaviour
     Transform returnTarget;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Awake()
     {
         col = GetComponent<Collider>();
         rb = GetComponent<Rigidbody>();
-        rb.useGravity = false; // custom gravity scaling is used
+        rb.useGravity = false; // custom gravity scaling is used        
+    }
+    void Start()
+    {
+        transform.rotation = Quaternion.LookRotation(moveDir);
+        
+        if (state != KnifeProjState.InFlight) return; // in case moving is unneccessary
 
         Vector3 launchDir = (moveDir + Vector3.up * upwardBias).normalized;
         velocity = launchDir * projSpeed;
         rb.linearVelocity = velocity;
-
-        transform.rotation = Quaternion.LookRotation(moveDir);
     }
 
     // Update is called once per frame
@@ -82,12 +86,9 @@ public class KnifeProjectile : MonoBehaviour
     public void QuickReturnToPlayer()
     {
         //Debug.Log($"ReturnToPlayer: state={state}, lifetime={lifetime}\n{System.Environment.StackTrace}", this);
-
-        PlayerCombatFP.Instance.AddKnife(1);
-
-        if (PlayerCombatFP.Instance.SpawnedKnives.Contains(this))
+        if (PlayerCombatFP.Instance.SpawnedKnives.Remove(this)) // if this knife was in the list + is removeable from it
         {
-            PlayerCombatFP.Instance.SpawnedKnives.Remove(this);
+            PlayerCombatFP.Instance.AddKnife(1);
         }
 
         Destroy(this.gameObject);
