@@ -232,7 +232,7 @@ public class PlayerCombatFP : MonoBehaviour
             }
             else // normal retrieve
             {
-                enemy.TakeDamage(knifeToRetrieve.projDamage * 0.5f);
+                enemy.TakeDamage(knifeToRetrieve.projDamage * 0.75f);
 
                 knifeToRetrieve.SetRetrieving(chestHeight);
             }

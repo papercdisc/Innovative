@@ -72,6 +72,8 @@ public class KnifeProjectile : MonoBehaviour
 
             // keep the blade pointing along its path so it noses down as it falls
             transform.rotation = Quaternion.LookRotation(velocity);
+
+            HandleCollision();
         }
         if(state == KnifeProjState.Retrieving) // straight 
         {
@@ -104,27 +106,6 @@ public class KnifeProjectile : MonoBehaviour
         col.isTrigger = true; // when retrieving, we don't want collision.
     }
 
-    private void OnCollisionEnter(Collision collision) // could probably reformat this thing to be less redundant but I don't feel like it rn
-    {
-        if (state == KnifeProjState.InFlight)
-        {
-            if (collision.gameObject.GetComponent<PlayerHealth>()) return; //ignore player collision
-
-            EnemyHealth enemyHealth = collision.gameObject.GetComponentInParent<EnemyHealth>();
-            if(enemyHealth)
-            {
-                StickToEnemy(enemyHealth, collision);
-
-                return;
-            }
-            else
-            {
-                state = KnifeProjState.CanPickup;
-                rb.isKinematic = true;
-            }
-
-        }
-    }
     private void OnTriggerEnter(Collider other)
     {
         if (state != KnifeProjState.Retrieving) return;
@@ -138,17 +119,46 @@ public class KnifeProjectile : MonoBehaviour
         EnemyHealth enemy = other.gameObject.GetComponentInParent<EnemyHealth>();
         if (enemy) // equivalent to (enemy != null)
         {
-            PierceEnemy(enemy, 0.75f);
+            PierceEnemy(enemy, 1.25f);
 
             return;
         }
     }
+
+    void HandleCollision()
+    {
+        // pre-emptive raycast to see if the knife is about to hit something (length should be equal to the distance it will travel this frame)
+        // this proactive approach will make the knife less likely to pass through objects, especially at high speeds.
+        if (state != KnifeProjState.InFlight) return;
+
+        Ray ray = new Ray(transform.position, rb.linearVelocity.normalized);
+        RaycastHit hit;
+        
+        if (Physics.Raycast(ray, out hit, rb.linearVelocity.magnitude * Time.fixedDeltaTime)) // if the raycast hits something in the distance it will travel this frame
+        {
+            // Handle the collision
+            if(hit.collider.gameObject.GetComponent<PlayerHealth>()) return; //ignore player collision)
+
+            EnemyHealth enemyHealth = hit.collider.gameObject.GetComponentInParent<EnemyHealth>();
+            if(enemyHealth)
+            {
+                StickToEnemy(enemyHealth, hit);
+                return;
+            }
+            else
+            {
+                state = KnifeProjState.CanPickup;
+                rb.isKinematic = true;
+            }
+        }
+    }
+
     void UnstickEnemy()
     {
         this.gameObject.transform.SetParent(null);
         stuckEnemy.OnDeath.RemoveListener(QuickReturnToPlayer);
     }
-    void StickToEnemy(EnemyHealth enemyHealth, Collision collision)
+    void StickToEnemy(EnemyHealth enemyHealth, RaycastHit hit)
     {
         enemyHealth.TakeDamage(projDamage); // self explanatory
         state = KnifeProjState.InEnemy;
@@ -156,7 +166,7 @@ public class KnifeProjectile : MonoBehaviour
 
         if (!enemyHealth.isDead) // if, after doing damage, enemy is still alive, subscribe to OnDeath event 
         {
-            this.gameObject.transform.SetParent(collision.gameObject.transform);
+            this.gameObject.transform.SetParent(hit.collider.gameObject.transform);
             stuckEnemy = enemyHealth;
             stuckEnemy.OnDeath.AddListener(QuickReturnToPlayer);
         }
@@ -167,8 +177,5 @@ public class KnifeProjectile : MonoBehaviour
         if (!enemiesHitOnRetrieve.Add(enemy)) return;
 
         enemy.TakeDamage(projDamage * dmgMulti);
-
-        //foreach (Collider c in enemy.GetComponentsInChildren<Collider>())
-        //    Physics.IgnoreCollision(col, c);
     }
 }
