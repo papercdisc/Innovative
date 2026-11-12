@@ -31,6 +31,7 @@ public class PlayerCombatFP : MonoBehaviour
     [SerializeField] private GameObject knifePrefab;
     [SerializeField] private Transform orientation;
     [SerializeField] private Transform chestHeight;
+    public GameObject vfxPrefab;
     
     // ~~~
 
@@ -226,6 +227,10 @@ public class PlayerCombatFP : MonoBehaviour
             if(IsInFinisherRange(knifeToRetrieve))
             {
                 pendingFinisherEnemy = enemy;
+                Vector3 vfxSpawn = knifeToRetrieve.transform.position;
+
+                Instantiate(vfxPrefab, vfxSpawn, Quaternion.LookRotation(transform.forward), this.gameObject.transform);
+
                 knifeToRetrieve.QuickReturnToPlayer();
                 
                 OnFinisher?.Invoke(); // start finisher animation

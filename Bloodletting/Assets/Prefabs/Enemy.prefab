@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2716344738986141163}
   - component: {fileID: 4329593474619645178}
   - component: {fileID: 588170508990432120}
+  - component: {fileID: 8074588800023827250}
   m_Layer: 3
   m_Name: B-head
   m_TagString: Untagged
@@ -127,10 +128,22 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.10712612
+  m_Radius: 0.09
   m_Height: 0.28838706
   m_Direction: 1
   m_Center: {x: 0, y: 0.064293146, z: 0.030000003}
+--- !u!114 &8074588800023827250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 92162177967908869}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b400af79654483449ac6acc5dbcfad59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeadTag
 --- !u!1 &201172568695230044
 GameObject:
   m_ObjectHideFlags: 0
@@ -943,8 +956,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.31, y: 0.2623178, z: 0.2397055}
-  m_Center: {x: 0, y: 0.122987375, z: 0.008982956}
+  m_Size: {x: 0.31, y: 0.25179824, z: 0.21886104}
+  m_Center: {x: 0, y: 0.1177275, z: -0.0014396765}
 --- !u!1 &2182077531252253594
 GameObject:
   m_ObjectHideFlags: 0
