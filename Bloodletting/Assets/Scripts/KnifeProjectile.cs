@@ -8,6 +8,9 @@ public class KnifeProjectile : MonoBehaviour
     Collider col;
     Vector3 velocity;
 
+    [Header("VFX")]
+    public GameObject vfxPrefab;
+
     [Header("Properties")]
     public Vector3 moveDir;
     public float projSpeed = 10f;
@@ -36,6 +39,7 @@ public class KnifeProjectile : MonoBehaviour
     private void Awake()
     {
         col = GetComponent<Collider>();
+        col.isTrigger = true;
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false; // custom gravity scaling is used        
     }
@@ -119,7 +123,8 @@ public class KnifeProjectile : MonoBehaviour
         EnemyHealth enemy = other.gameObject.GetComponentInParent<EnemyHealth>();
         if (enemy) // equivalent to (enemy != null)
         {
-            PierceEnemy(enemy, 1.25f);
+            PierceEnemy(enemy, 1.35f);
+            Instantiate(vfxPrefab, other.transform.position, Quaternion.LookRotation(other.transform.forward), this.gameObject.transform);
 
             return;
         }
@@ -134,7 +139,7 @@ public class KnifeProjectile : MonoBehaviour
         Ray ray = new Ray(transform.position, rb.linearVelocity.normalized);
         RaycastHit hit;
         
-        if (Physics.Raycast(ray, out hit, rb.linearVelocity.magnitude * Time.fixedDeltaTime)) // if the raycast hits something in the distance it will travel this frame
+        if (Physics.SphereCast(ray, 0.03f, out hit, (rb.linearVelocity.magnitude - 0.1f) * Time.fixedDeltaTime)) // if the raycast hits something in the distance it will travel this frame
         {
             // Handle the collision
             if(hit.collider.gameObject.GetComponent<PlayerHealth>()) return; //ignore player collision)
@@ -160,7 +165,17 @@ public class KnifeProjectile : MonoBehaviour
     }
     void StickToEnemy(EnemyHealth enemyHealth, RaycastHit hit)
     {
-        enemyHealth.TakeDamage(projDamage); // self explanatory
+        Instantiate(vfxPrefab, hit.point, Quaternion.LookRotation(hit.normal), this.gameObject.transform);
+        
+        if(hit.collider.gameObject.GetComponent<HeadTag>())
+        {
+            enemyHealth.TakeDamage(projDamage * 1.5f); // headshot damage
+        }
+        else
+        {
+            enemyHealth.TakeDamage(projDamage); // self explanatory
+        }
+
         state = KnifeProjState.InEnemy;
         rb.isKinematic = true; // stop moving
 

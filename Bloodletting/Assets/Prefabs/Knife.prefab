@@ -9886,7 +9886,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.023355745
+  m_Radius: 0.03
   m_Height: 0.49598214
   m_Direction: 2
   m_Center: {x: 0, y: 0, z: 0.03333001}
@@ -9929,6 +9929,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d763a08e10724fb4eb402bba5f270e44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KnifeProjectile
+  vfxPrefab: {fileID: 4543526980665177070, guid: 1356be3dd7e823647b79cc73bc88c0ef, type: 3}
   moveDir: {x: 0, y: 0, z: 0}
   projSpeed: 40
   retrieveSpeed: 42
