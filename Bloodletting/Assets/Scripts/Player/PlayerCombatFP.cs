@@ -12,7 +12,7 @@ using UnityEngine.Events;
 /// </summary>
 public class PlayerCombatFP : MonoBehaviour
 {
-    PlayerInputSubscription_FPS getInput;
+    #region Singleton
     public static PlayerCombatFP Instance { get; private set; }
     private void Awake()
     {
@@ -25,21 +25,27 @@ public class PlayerCombatFP : MonoBehaviour
             Instance = this;
         }
     }
-
+    #endregion
+    // ~~~
+    #region References
     [Header("References")]
     [SerializeField] private Transform knifeSpawnPoint;
     [SerializeField] private GameObject knifePrefab;
     [SerializeField] private Transform orientation;
     [SerializeField] private Transform chestHeight;
-    
+    PlayerInputSubscription_FPS getInput;
+    PlayerHealth health;
+    EnemyHealth pendingFinisherEnemy;
+    KnifeProjectile pendingFinisherKnife;
+    #endregion
     // ~~~
-
+    #region Player Preferences
     [field: Header("Player Preferences")]
     [field: SerializeField, Tooltip("Switch between hold for ADS and a toggle. Hold for ADS is default.")] 
     public bool toggleADSMode { get; private set; } = false;
-
+    #endregion
     // ~~~
-
+    #region Combat Settings
     [field: Header("Combat Settings")]
     [field: SerializeField] public bool EnableHPKnives { get; private set; }
     [field: SerializeField] public float atkCD { get; private set; } = 0.5f;
@@ -52,9 +58,9 @@ public class PlayerCombatFP : MonoBehaviour
                                 // (explaining it here before i forget cause its a little confusing)
     float atkHoldTime = 0f;
     bool canAttack = true; // if the player is allowed to attack (not on cooldown)
-
+    #endregion
     // ~~~
-
+    #region Knife Retrieval Settings
     [Header("Knife Retrieval")]
     [SerializeField] private float retrieveRange = 25f;
     [SerializeField] private float closeRetrieveRange = 5f;
@@ -64,30 +70,35 @@ public class PlayerCombatFP : MonoBehaviour
     [SerializeField] private LayerMask obstructionMask;
     float retrieveBuffer = 0.2f;
     float retrieveBufferCounter = 0f;
-
+    #endregion
     // ~~~
-
+    #region Knife Tracking Settings
     [field: Header("Knife Tracking")]
     [field: SerializeField] public int maxKnives {get; private set; } = 1 ;
     [field: SerializeField] public int heldKnives {get; private set; } = 0;
     [field: SerializeField] public HeldKnifeState knifeState {get; private set; }
     [field: SerializeField] public float maxKnifeLifetime { get; private set; } = 10;
     [field: SerializeField] public List<KnifeProjectile> SpawnedKnives { get; private set; } = new List<KnifeProjectile>();
-
+    #endregion
     // ~~~
-
+    [Header("Health-Related Retrieval Settings")]
+    [SerializeField] private bool healQTEEnabled = true; // if the player is allowed to enter a QTE state when aiming at a knife travelling toward them
+    [SerializeField] private float healQTERange = 3f; // the range at which time is slowed when aiming at a knife travelling toward the player
+    [SerializeField] private float QTETimeScale = 0.2f; // the time scale when aiming at a knife travelling toward the player
+    private bool isInQTE = false; // if the player is currently in a QTE state (time slowed)
+    // ~~~
+    #region Event System
     [Header("Events")]
     public UnityEvent<int> OnKnifeCountChanged;
     public UnityEvent<bool> OnADS;
     public UnityEvent OnKnifeThrown;
     public UnityEvent OnFinisher;
-
-    EnemyHealth pendingFinisherEnemy;
-    KnifeProjectile pendingFinisherKnife;
+    #endregion
 
     private void Start()
     {
         getInput = PlayerInputSubscription_FPS.Instance;
+        health = PlayerHealth.Instance;
     }
 
     private void Update()
@@ -104,6 +115,7 @@ public class PlayerCombatFP : MonoBehaviour
         //TryRetrieve();
     }
 
+    #region Input Handlers
     private void ADSInputHandler()
     {
         bool adsInputThisFrame = getInput.ADSPressedThisFrame;
@@ -152,7 +164,8 @@ public class PlayerCombatFP : MonoBehaviour
             retrieveBufferCounter -= Time.deltaTime;
         }
     }
-
+    #endregion
+    
     private void TryAttack() // actually execute attack if conditions are met (called in FixedUpdate to avoid frame rate issues)
     {
         if (heldKnives <= 0) { return; }
@@ -264,6 +277,25 @@ public class PlayerCombatFP : MonoBehaviour
 
         float dist = Vector3.Distance(Camera.main.transform.position, knife.transform.position);
         return dist < retrieveFinisherRange;
+    }
+    public bool IsInHealQTERange(KnifeProjectile knife)
+    {
+        if (knife == null || knife.State != KnifeProjState.Retrieving) return false;
+        float dist = Vector3.Distance(Camera.main.transform.position, knife.transform.position);
+        return dist < healQTERange;
+    }
+
+    // HEAL QTE BREAKDOWN
+    // 1. Once a knife in retrieving state is within range (reference point is the camera), time slows down to QTETimeScale
+    // 2. If the player is aiming at the knife, and presses the retrieve button, the knife is retrieved and a portion of health is restored
+    // 2.a. If the player does not press the retrieve button in time, the knife will hit the player and deal damage (make sure to enable player collision while in retrieval state in knife script)
+    //      (The knife is still retrieved in this instance, but the player takes damage instead of healing.)
+
+    public void CheckForKnivesInRange()
+    {
+        // might just wanna do a circle cast around the player instead? idk...
+
+
     }
 
     private KnifeProjectile FindKnifeInView()
