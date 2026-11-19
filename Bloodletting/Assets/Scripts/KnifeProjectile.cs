@@ -7,6 +7,8 @@ public class KnifeProjectile : MonoBehaviour
     Rigidbody rb;
     Collider col;
     Vector3 velocity;
+    [Header("References")]
+    public PlayerKnifeInventory PlayerInventory;
 
     [Header("VFX")]
     public GameObject vfxPrefab;
@@ -91,10 +93,19 @@ public class KnifeProjectile : MonoBehaviour
 
     public void QuickReturnToPlayer()
     {
-        //Debug.Log($"ReturnToPlayer: state={state}, lifetime={lifetime}\n{System.Environment.StackTrace}", this);
-        if (PlayerCombatFP.Instance.SpawnedKnives.Remove(this)) // if this knife was in the list + is removeable from it
+        if(PlayerCombatFP.Instance != null) // Legacy script (to be phased out)
+        { 
+            if (PlayerCombatFP.Instance.SpawnedKnives.Remove(this)) // if this knife was in the list + is removeable from it
+            {
+                PlayerCombatFP.Instance.AddKnife(1);
+            }
+        }
+        else if(PlayerInventory != null)
         {
-            PlayerCombatFP.Instance.AddKnife(1);
+            if (PlayerInventory.SpawnedKnives.Remove(this))
+            {
+                PlayerInventory.AddKnifeToInventory(1);
+            }
         }
 
         Destroy(this.gameObject);

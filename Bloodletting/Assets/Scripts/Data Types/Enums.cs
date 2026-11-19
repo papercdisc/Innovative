@@ -1,10 +1,5 @@
 using UnityEngine;
 
-public class Enums : MonoBehaviour
-{
-
-}
-
 public enum HeldKnifeState
 {
     Melee, // while adopting a melee stance

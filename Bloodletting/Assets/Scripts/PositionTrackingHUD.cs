@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 // Mostly AI generated code!!
 public class PositionTrackingHUD : MonoBehaviour
 {
+    public PlayerKnifeCombatManager cm;
     [SerializeField] RectTransform trackerPrefab;
     [SerializeField] float edgePadding = 40f;      // px kept between tracker and screen edge
     [SerializeField] bool rotateWhenOffScreen = true; // point an arrow sprite toward the knife
@@ -24,15 +25,17 @@ public class PositionTrackingHUD : MonoBehaviour
         cam = Camera.main;
     }
 
-    void LateUpdate() // after the camera has moved this frame
+    void LateUpdate() // after the camera has moved this frame 
     {
-        List<KnifeProjectile> knives = PlayerCombatFP.Instance.SpawnedKnives;
+        List<KnifeProjectile> knives = GetKnives();
+        if (knives == null) return;
 
         // 1. add trackers for new knives
         foreach (KnifeProjectile knife in knives)
         {
+            if (knife == null) return;
             bool validState = knife.State == KnifeProjState.CanPickup || knife.State == KnifeProjState.InEnemy;
-            if (knife != null && !trackers.ContainsKey(knife) && validState)
+            if (!trackers.ContainsKey(knife) && validState)
                 AddTracker(knife);
         }
 
@@ -81,7 +84,12 @@ public class PositionTrackingHUD : MonoBehaviour
             if (anim.GetBool("InEnemy") != inEnemy) anim.SetBool("InEnemy", inEnemy);
         }
 
-        bool canFinish = PlayerCombatFP.Instance.IsInFinisherRange(knife);
+        bool canFinish = false;
+        if (PlayerCombatFP.Instance != null)
+            canFinish = PlayerCombatFP.Instance.IsInFinisherRange(knife);
+        else if (cm != null && cm.RetrieveHandler != null)
+            canFinish = cm.RetrieveHandler.IsInFinisherRange(knife);
+
         if (anim.GetBool("CanFinish") != canFinish) anim.SetBool("CanFinish", canFinish); // update bool if incongruent
 
         if (!onScreen)
@@ -106,5 +114,14 @@ public class PositionTrackingHUD : MonoBehaviour
                 ? Quaternion.identity
                 : Quaternion.Euler(0f, 0f, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90f); // -90 assumes the sprite points up
         }
+    }
+    List<KnifeProjectile> GetKnives()
+    {
+        var old = PlayerCombatFP.Instance;
+        if (old != null && old.isActiveAndEnabled) return old.SpawnedKnives;
+
+        if (cm != null && cm.Inventory != null) return cm.Inventory.SpawnedKnives;
+
+        return null;
     }
 }

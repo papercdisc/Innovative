@@ -5,7 +5,7 @@ using UnityEngine.Events;
 /// We're going to opperate under the assumption that this game is in real time, so NOT turn based. 
 /// Just for adaptability, real time health functions will have the prefix "RT", and turn based health functions will have the prefix "TB".
 /// </summary>
-public class PlayerHealth : Health
+public class PlayerHealth : Health, IDamageable
 {
     public static PlayerHealth Instance { get; private set; }
     private void Awake()
@@ -47,14 +47,12 @@ public class PlayerHealth : Health
     public bool enableRegen = true;
     public bool isConstant;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         currentHealth = maxHealth / 2;
         activeOverhealthSafeTime = overhealthSafeTime;
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (enableRegen)
